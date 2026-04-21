@@ -4,9 +4,9 @@ Bienvenue dans le **Laboratoire Interactif d'Optimisation**. Ce projet éducatif
 
 La particularité de ce projet ? **Le calcul des dérivées est exact.** Il n'utilise aucune approximation numérique, mais repose sur une implémentation maison des **Nombres Duaux** (Différenciation Automatique).
 
-![image-20260421231544330](/home/wihler/labs/maths/labo-regression/img/img_1.png)
+![image 1](img/img_1.png)
 
-![image-20260421232033079](/home/wihler/labs/maths/labo-regression/img/img_2.png)
+![image 2](img/img_2.png)
 
 ## ✨ Fonctionnalités
 
