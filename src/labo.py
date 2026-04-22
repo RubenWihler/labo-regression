@@ -107,7 +107,8 @@ DEFAULTS = {
     "Double Puits (1D)":{"lr": {"simple_descent": 0.01, "momentum": 0.01, "nesterov": 0.01, "adam": 0.2}, "range": (-3, 3), "fn": fn_puits},
     "Asymétrique (1D)": {"lr": {"simple_descent": 0.05, "momentum": 0.05, "nesterov": 0.05, "adam": 0.5}, "range": (-3, 4), "fn": fn_asym},
     "Fond Plat (1D)":   {"lr": {"simple_descent": 0.01, "momentum": 0.01, "nesterov": 0.01, "adam": 0.1}, "range": (-3, 3), "fn": fn_plat},
-    "Ondulation (1D)":  {"lr": {"simple_descent": 0.1, "momentum": 0.1, "nesterov": 0.1, "adam": 0.5}, "range": (-4, 4), "fn": fn_ondul}
+    "Ondulation (1D)":  {"lr": {"simple_descent": 0.1, "momentum": 0.1, "nesterov": 0.1, "adam": 0.5}, "range": (-4, 4), "fn": fn_ondul},
+    "Custom (1D)":      {"lr": {"simple_descent": 0.05, "momentum": 0.05, "nesterov": 0.05, "adam": 0.5}, "range": (-5, 5), "fn": None} # Ajout config Custom
 }
 
 st.sidebar.title("🛠️ Configuration")
@@ -124,11 +125,40 @@ fn_name, fn_test = None, None
 if vue == "Descente de Gradient":
     st.sidebar.markdown("### Fonction à optimiser")
     dim = st.sidebar.radio("Dimension", ["2D (Surfaces)", "1D (Courbes)"], horizontal=True)
-    if "2D" in dim: fn_name = st.sidebar.selectbox("Fonction :", ["Sphère (2D)", "Rosenbrock (2D)", "Beale (2D)", "Booth (2D)"])
-    else: fn_name = st.sidebar.selectbox("Fonction :", ["Quadratique (1D)", "Double Puits (1D)", "Asymétrique (1D)", "Fond Plat (1D)", "Ondulation (1D)"])
-    fn_test = DEFAULTS[fn_name]["fn"]
-    grid_range = DEFAULTS[fn_name]["range"]
-else: grid_range = (-5, 5)
+    if "2D" in dim: 
+        fn_name = st.sidebar.selectbox("Fonction :", ["Sphère (2D)", "Rosenbrock (2D)", "Beale (2D)", "Booth (2D)"])
+        fn_test = DEFAULTS[fn_name]["fn"]
+        grid_range = DEFAULTS[fn_name]["range"]
+    else: 
+        # Ajout du choix "Custom (1D)"
+        fn_name = st.sidebar.selectbox("Fonction :", ["Quadratique (1D)", "Double Puits (1D)", "Asymétrique (1D)", "Fond Plat (1D)", "Ondulation (1D)", "Custom (1D)"])
+        
+        if fn_name == "Custom (1D)":
+            custom_expr = st.sidebar.text_input("Expression f(x) (ex: x**2 + 2*x)", value="x**2 - 2*x + 1")
+            st.session_state.custom_expr = custom_expr # Sauvegarde pour l'affichage final
+            
+            c_min, c_max = st.sidebar.columns(2)
+            custom_min = c_min.number_input("X min", value=-5.0)
+            custom_max = c_max.number_input("X max", value=5.0)
+            grid_range = (custom_min, custom_max)
+            
+            # Définition dynamique de la fonction depuis la string
+            def create_custom_fn(expr):
+                def custom_fn(x):
+                    try:
+                        # On injecte np pour permettre np.sin, np.cos etc. si l'utilisateur les tape, 
+                        # et x comme variable locale
+                        return eval(expr, {"__builtins__": __builtins__}, {"x": x, "np": np})
+                    except Exception:
+                        return x * 0.0 # Fallback de sécurité en cas d'erreur de syntaxe
+                return custom_fn
+                
+            fn_test = create_custom_fn(custom_expr)
+        else:
+            fn_test = DEFAULTS[fn_name]["fn"]
+            grid_range = DEFAULTS[fn_name]["range"]
+else: 
+    grid_range = (-5, 5)
 
 st.sidebar.markdown("### Algorithme")
 algo = st.sidebar.selectbox("Méthode", ["simple_descent", "momentum", "nesterov", "adam"])
@@ -288,6 +318,10 @@ if "hist_p" in st.session_state:
                 elif fn_name == "Asymétrique (1D)": st.latex(r"f(x) = \frac{1}{4}x^4 - \frac{1}{3}x^3 - x^2 + 1")
                 elif fn_name == "Fond Plat (1D)": st.latex(r"f(x) = 0.05 x^6")
                 elif fn_name == "Ondulation (1D)": st.latex(r"f(x) = 0.01 x^6 - 0.1 x^4 + 0.2 x^2 - 0.05 x")
+                # Affichage de la fonction Custom
+                elif fn_name == "Custom (1D)":
+                    expr_affichee = st.session_state.get('custom_expr', 'x')
+                    st.markdown(f"**Fonction Custom :** `f(x) = {expr_affichee}`")
 
         with tab_algo:
             algo_title = algo.replace("_", " ").title()

@@ -1,4 +1,4 @@
-# 🧪 Labo Régression & Descente de Gradient
+# g🧪 Labo Régression & Descente de Gradient
 
 Bienvenue dans le **Laboratoire Interactif d'Optimisation**. Ce projet éducatif permet de visualiser en temps réel comment les algorithmes de Machine Learning (Descente de gradient) apprennent et naviguent dans des espaces mathématiques complexes.
 
@@ -37,7 +37,8 @@ git clone git@github.com:RubenWihler/labo-regression.git
 cd labo-regression
 
 # 2. Donner les droits d'exécution au script et le lancer
-chmod +x run.sh && ./run.sh
+ls
+
 ```
 
 ### Sur Windows (Méthode Manuelle)
